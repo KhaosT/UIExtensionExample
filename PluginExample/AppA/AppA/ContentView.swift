@@ -15,15 +15,35 @@ final class ViewModel {
     private var monitor: AppExtensionPoint.Monitor?
     private(set) var currentIdentity: AppExtensionIdentity?
 
+    private(set) var disabledExtensionCount: Int = 0
+
     func load() async {
         do {
-            let monitor = try await AppExtensionPoint.Monitor(appExtensionPoint: .customPluginExtension)
-            NSLog("Identities: \(monitor.identities)")
-            currentIdentity = monitor.identities.first
+            let monitor = AppExtensionPoint.Monitor()
 
+            try await monitor.addAppExtensionPoint(.customPluginExtension)
             self.monitor = monitor
+
+            observeUpdates()
         } catch {
             NSLog("Error: %@", String(describing: error))
+        }
+    }
+
+    func observeUpdates() {
+        guard let monitor else {
+            return
+        }
+
+        withObservationTracking {
+            NSLog("Identities: \(monitor.identities)")
+            NSLog("Count: \(monitor.state.disabledCount) | \(monitor.state.unapprovedCount)")
+            currentIdentity = monitor.identities.first
+            disabledExtensionCount = monitor.state.disabledCount
+        } onChange: { [weak self] in
+            DispatchQueue.main.async {
+                self?.observeUpdates()
+            }
         }
     }
 }
@@ -45,6 +65,10 @@ struct ContentView: View {
                 )
             } else {
                 Text("No Extension")
+
+                if viewModel.disabledExtensionCount > 0 {
+                    Text("Disabled: \(viewModel.disabledExtensionCount)")
+                }
             }
         }
         .task {
@@ -70,18 +94,6 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "switch.2")
                 }
-
-            }
-
-            ToolbarItem(placement: .bottomBar) {
-                Button {
-                    Task {
-                        await viewModel.load()
-                    }
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                }
-
             }
         }
     }
