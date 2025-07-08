@@ -71,7 +71,7 @@ class CustomUIExtension: MyUIExtension {
 
     @AppExtensionPoint.Bind
     var boundExtensionPoint: AppExtensionPoint {
-        AppExtensionPoint.Identifier(host: "app.cerio.UIExtensionExample", name: "app.cerio.UIExtensionExample.customUI")
+        AppExtensionPoint.Identifier(host: "app.cerio.UIExtensionExample", name: "customUI")
     }
     
     var body: some CustomUIExtensionScene {

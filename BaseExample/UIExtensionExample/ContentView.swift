@@ -19,6 +19,7 @@ final class ViewModel {
         do {
             let monitor = try await AppExtensionPoint.Monitor(appExtensionPoint: .customUIExtension)
             NSLog("Identities: \(monitor.identities)")
+            NSLog("States: \(monitor.state.disabledCount) | \(monitor.state.unapprovedCount)")
             currentIdentity = monitor.identities.first
 
             self.monitor = monitor

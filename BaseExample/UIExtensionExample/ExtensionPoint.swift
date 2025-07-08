@@ -12,7 +12,7 @@ extension AppExtensionPoint {
 
     @Definition
     public static var customUIExtension: AppExtensionPoint {
-        Name("app.cerio.UIExtensionExample.customUI")
+        Name("customUI")
         UserInterface()
     }
 }
